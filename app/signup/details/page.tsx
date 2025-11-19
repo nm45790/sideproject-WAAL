@@ -167,7 +167,7 @@ export default function DetailsPage() {
       await api.execute({
         url: "/api/v1/phone-verification/send-code",
         method: "POST",
-        data: { phoneNumber: signupData.memberPhone },
+        data: { phoneNumber: signupData.memberPhone.replace(/-/g, "") },
       });
 
       alert("인증번호가 발송되었습니다.");

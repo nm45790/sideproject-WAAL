@@ -45,7 +45,24 @@ export const useDebouncedApi = (options: DebouncedApiOptions = {}) => {
         });
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          // 에러 응답 파싱
+          let errorMessage = `HTTP error! status: ${response.status}`;
+          try {
+            const errorData = await response.json();
+            errorMessage =
+              errorData.message ||
+              errorData.error ||
+              `HTTP error! status: ${response.status}`;
+          } catch (parseError) {
+            // JSON 파싱 실패 시 기본 에러 메시지 사용
+          }
+
+          // alert 표시 (브라우저 환경에서만)
+          if (typeof window !== "undefined") {
+            alert(errorMessage);
+          }
+
+          throw new Error(errorMessage);
         }
 
         return await response.json();

@@ -99,7 +99,7 @@ export default function AccountPage() {
         data: {
           memberId: signupData.memberId,
           memberPassword: signupData.memberPassword,
-          memberPhone: signupData.memberPhone,
+          memberPhone: signupData.memberPhone.replace(/-/g, ""), // 하이픈 제거
           memberName: signupData.memberName,
           memberEmail: signupData.memberEmail,
           agreeTerms: signupData.termsSelectOption.service,

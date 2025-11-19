@@ -78,7 +78,7 @@ export default function VerifyPage() {
       await api.execute({
         url: "/api/v1/phone-verification/send-code",
         method: "POST",
-        data: { phoneNumber: signupData.memberPhone },
+        data: { phoneNumber: signupData.memberPhone.replace(/-/g, "") },
       });
 
       setSuccess("인증번호가 발송되었습니다.");
@@ -114,7 +114,7 @@ export default function VerifyPage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            phoneNumber: signupData.memberPhone,
+            phoneNumber: signupData.memberPhone.replace(/-/g, ""),
             verificationCode: codeToVerify,
           }),
         },
