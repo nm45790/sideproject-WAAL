@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import MainContainer from "../../components/MainContainer";
 import Icons from "../../components/Icons";
 import useDebouncedApi from "../../utils/debouncedApi";
+import {
+  formatPhoneNumberInput,
+  removePhoneNumberHyphens,
+} from "../../utils/format";
 
 export default function FindPasswordPage() {
   const router = useRouter();
@@ -20,23 +24,8 @@ export default function FindPasswordPage() {
     router.back();
   };
 
-  const formatPhoneNumber = (value: string) => {
-    // 숫자만 추출
-    const numbers = value.replace(/\D/g, "");
-
-    // 길이에 따라 하이픈 추가
-    if (numbers.length <= 3) {
-      return numbers;
-    } else if (numbers.length <= 7) {
-      return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
-    } else {
-      return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
-    }
-  };
-
   const handlePhoneChange = (value: string) => {
-    const formatted = formatPhoneNumber(value);
-    setPhone(formatted);
+    setPhone(formatPhoneNumberInput(value));
   };
 
   const handleNext = async () => {
@@ -47,8 +36,7 @@ export default function FindPasswordPage() {
     setIsLoading(true);
 
     try {
-      // 비밀번호 찾기 인증번호 발송
-      const phoneNumber = phone.replace(/-/g, "");
+      const phoneNumber = removePhoneNumberHyphens(phone);
       const response = await api.execute({
         url: "/api/v1/members/find-password/step1",
         method: "POST",
@@ -59,7 +47,6 @@ export default function FindPasswordPage() {
         },
       });
 
-      // 성공하면 다음 페이지로 이동
       if (response) {
         alert("인증번호가 발송되었습니다.");
         router.push(
@@ -92,10 +79,12 @@ export default function FindPasswordPage() {
 
       {/* 입력 필드 영역 */}
       <div className="flex-1 flex flex-col pt-[88px]">
-        {/* 이름 입력 */}
+        {/* 아이디 입력 */}
         <div className="mb-[25px]">
           <div className="mb-[8px]">
-            <span className="text-[16px] font-medium text-[#363e4a]">이름</span>
+            <span className="text-[16px] font-medium text-[#363e4a]">
+              아이디
+            </span>
             <span className="text-[16px] font-medium text-[#ff2407] ml-1">
               *
             </span>

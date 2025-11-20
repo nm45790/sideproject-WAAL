@@ -5,6 +5,11 @@ import { useRouter } from "next/navigation";
 import MainContainer from "../../components/MainContainer";
 import Icons from "../../components/Icons";
 import useDebouncedApi from "../../utils/debouncedApi";
+import {
+  formatPhoneNumberInput,
+  formatName,
+  removePhoneNumberHyphens,
+} from "../../utils/format";
 
 export default function FindIdPage() {
   const router = useRouter();
@@ -21,28 +26,11 @@ export default function FindIdPage() {
   };
 
   const handleNameChange = (value: string) => {
-    // 한글과 영어만 허용 (특수문자, 숫자 제거)
-    const filteredValue = value.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z\s]/g, "");
-    setName(filteredValue);
-  };
-
-  const formatPhoneNumber = (value: string) => {
-    // 숫자만 추출
-    const numbers = value.replace(/\D/g, "");
-
-    // 길이에 따라 하이픈 추가
-    if (numbers.length <= 3) {
-      return numbers;
-    } else if (numbers.length <= 7) {
-      return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
-    } else {
-      return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
-    }
+    setName(formatName(value));
   };
 
   const handlePhoneChange = (value: string) => {
-    const formatted = formatPhoneNumber(value);
-    setPhone(formatted);
+    setPhone(formatPhoneNumberInput(value));
   };
 
   const handleNext = async () => {
@@ -53,8 +41,7 @@ export default function FindIdPage() {
     setIsLoading(true);
 
     try {
-      // 아이디 찾기 인증번호 발송
-      const phoneNumber = phone.replace(/-/g, "");
+      const phoneNumber = removePhoneNumberHyphens(phone);
       const response = await api.execute({
         url: "/api/v1/members/find-id/send-verification",
         method: "POST",
@@ -65,11 +52,8 @@ export default function FindIdPage() {
         },
       });
 
-      // 응답 확인: { code: ..., data: { success: true, expiresIn: ..., verificationCode: ... } }
-      // 성공하면 (에러가 없으면) 다음 페이지로 이동
       if (response) {
         alert("인증번호가 발송되었습니다.");
-        // 이름과 전화번호를 query parameter로 전달
         router.push(
           `/find/id/verify?name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phoneNumber)}`,
         );

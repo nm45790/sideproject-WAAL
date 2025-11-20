@@ -5,6 +5,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import MainContainer from "../../../components/MainContainer";
 import Icons from "../../../components/Icons";
 import useDebouncedApi from "../../../utils/debouncedApi";
+import {
+  formatPhoneNumberDisplay,
+  formatVerificationCode,
+  formatTime,
+} from "../../../utils/format";
 
 export default function FindIdVerifyPage() {
   const router = useRouter();
@@ -43,8 +48,7 @@ export default function FindIdVerifyPage() {
   };
 
   const handleCodeChange = (value: string) => {
-    // 숫자만 입력 허용 (6자리)
-    const numbers = value.replace(/\D/g, "").slice(0, 6);
+    const numbers = formatVerificationCode(value);
     setVerificationCode(numbers);
 
     // 6자리 입력 시 자동 검증
@@ -67,8 +71,6 @@ export default function FindIdVerifyPage() {
         },
       });
 
-      // 응답 확인: { code: ..., data: { success: true, expiresIn: ..., verificationCode: ... } }
-      // 성공하면 (에러가 없으면) 타이머 재시작
       if (response) {
         alert("인증번호가 재발송되었습니다.");
         setTimeLeft(300); // 타이머 재시작
@@ -92,7 +94,6 @@ export default function FindIdVerifyPage() {
     setIsLoading(true);
 
     try {
-      // 아이디 찾기 API 호출 (인증번호 검증 + 아이디 조회)
       const response = await api.execute({
         url: "/api/v1/members/find-id",
         method: "POST",
@@ -104,9 +105,7 @@ export default function FindIdVerifyPage() {
         },
       });
 
-      // 응답 확인: { code: ..., data: { memberId: "user123", memberName: "홍길동" } }
       if (response && response.data) {
-        // 결과 페이지로 이동 (찾은 아이디를 query parameter로 전달)
         router.push(
           `/find/id/result?memberId=${encodeURIComponent(response.data.memberId || "")}&memberName=${encodeURIComponent(response.data.memberName || "")}`,
         );
@@ -117,19 +116,6 @@ export default function FindIdVerifyPage() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  const formatPhoneNumber = (phoneNumber: string) => {
-    if (phoneNumber.length === 11) {
-      return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3, 7)}-${phoneNumber.slice(7, 11)}`;
-    }
-    return phoneNumber;
   };
 
   return (
@@ -153,7 +139,7 @@ export default function FindIdVerifyPage() {
         <div className="mb-[24px]">
           <div className="w-full h-[59px] rounded-[7px] px-5 flex items-center justify-center">
             <span className="text-[16px] font-medium text-[#363e4a]">
-              {formatPhoneNumber(phone)}
+              {formatPhoneNumberDisplay(phone)}
             </span>
           </div>
         </div>
@@ -207,4 +193,3 @@ export default function FindIdVerifyPage() {
     </MainContainer>
   );
 }
-

@@ -5,6 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import MainContainer from "../../../components/MainContainer";
 import Icons from "../../../components/Icons";
 import useDebouncedApi from "../../../utils/debouncedApi";
+import {
+  formatPhoneNumberDisplay,
+  formatVerificationCode,
+} from "../../../utils/format";
 
 export default function FindPasswordVerifyPage() {
   const router = useRouter();
@@ -17,7 +21,6 @@ export default function FindPasswordVerifyPage() {
   const [verificationCode, setVerificationCode] = useState("");
   const [isCodeFocused, setIsCodeFocused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(300); // 5분
 
   // 아이디와 전화번호가 없으면 첫 페이지로 리다이렉트
   useEffect(() => {
@@ -27,24 +30,12 @@ export default function FindPasswordVerifyPage() {
     }
   }, [memberId, phone, router]);
 
-  // 타이머 효과
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [timeLeft]);
-
   const handleGoBack = () => {
     router.back();
   };
 
   const handleCodeChange = (value: string) => {
-    // 숫자만 입력 허용 (6자리)
-    const numbers = value.replace(/\D/g, "").slice(0, 6);
+    const numbers = formatVerificationCode(value);
     setVerificationCode(numbers);
 
     // 6자리 입력 시 자동 검증
@@ -69,7 +60,6 @@ export default function FindPasswordVerifyPage() {
 
       if (response) {
         alert("인증번호가 재발송되었습니다.");
-        setTimeLeft(300); // 타이머 재시작
         setVerificationCode("");
       }
     } catch (err) {
@@ -90,7 +80,6 @@ export default function FindPasswordVerifyPage() {
     setIsLoading(true);
 
     try {
-      // 비밀번호 찾기 API 호출 (인증번호 검증)
       const response = await api.execute({
         url: "/api/v1/members/find-password/step2",
         method: "POST",
@@ -103,7 +92,6 @@ export default function FindPasswordVerifyPage() {
       });
 
       if (response && response.data) {
-        // 결과 페이지로 이동 (resetToken 전달)
         router.push(
           `/find/password/result?token=${encodeURIComponent(response.data.resetToken || "")}`,
         );
@@ -114,19 +102,6 @@ export default function FindPasswordVerifyPage() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  const formatPhoneNumber = (phoneNumber: string) => {
-    if (phoneNumber.length === 11) {
-      return `+82 ${phoneNumber.slice(0, 2)}-${phoneNumber.slice(2, 6)}-${phoneNumber.slice(6, 10)}`;
-    }
-    return phoneNumber;
   };
 
   return (
@@ -149,7 +124,7 @@ export default function FindPasswordVerifyPage() {
         {/* 전화번호 표시 */}
         <div className="mb-[68px] text-center">
           <span className="text-[18px] font-medium text-[#363e4a]">
-            {formatPhoneNumber(phone)}
+            {formatPhoneNumberDisplay(phone)}
           </span>
         </div>
 
@@ -175,18 +150,14 @@ export default function FindPasswordVerifyPage() {
           <div className="mt-[37px] text-center">
             <button
               onClick={handleResendCode}
-              disabled={isLoading || timeLeft > 0}
+              disabled={isLoading}
               className={`text-[14px] font-normal border-b transition-colors ${
-                isLoading || timeLeft > 0
+                isLoading
                   ? "text-gray-400 border-gray-400 cursor-not-allowed"
                   : "text-[#b4b4b4] border-[#b4b4b4] cursor-pointer"
               }`}
             >
-              {isLoading
-                ? "발송중..."
-                : timeLeft > 0
-                  ? `인증번호 다시 받기`
-                  : "인증번호 다시 받기"}
+              {isLoading ? "발송중..." : "인증번호 다시 받기"}
             </button>
           </div>
         </div>
