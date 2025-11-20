@@ -19,19 +19,26 @@ export const uploadFile = async (file: File): Promise<string> => {
     // 토큰 가져오기
     const accessToken = tokenManager.getAccessToken();
     const baseURL = process.env.NEXT_PUBLIC_API_URL || "";
+    const targetUrl = `${baseURL}/api/v1/s3/upload`;
 
-    console.log("🚀 파일 업로드 시작:", {
-      url: `${baseURL}/api/v1/s3/upload`,
+    console.log("🚀 파일 업로드 시작 (프록시 사용):", {
+      targetUrl,
       hasToken: !!accessToken,
       fileName: file.name,
       fileSize: file.size,
     });
 
-    const response = await fetch(`${baseURL}/api/v1/s3/upload`, {
+    // 프록시를 통한 업로드
+    formData.append("url", targetUrl);
+
+    const headers: Record<string, string> = {};
+    if (accessToken) {
+      headers["Authorization"] = `Bearer ${accessToken}`;
+    }
+
+    const response = await fetch("/api/proxy", {
       method: "POST",
-      headers: {
-        ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
-      },
+      headers,
       body: formData,
     });
 

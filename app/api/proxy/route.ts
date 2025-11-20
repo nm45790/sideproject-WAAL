@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
+    const contentType = request.headers.get("content-type") || "";
+
+    // FormData (파일 업로드) 처리
+    if (contentType.includes("multipart/form-data")) {
+      return handleFileUpload(request);
+    }
+
+    // JSON 데이터 처리
     const body = await request.json();
     const { url, method = "POST", data, headers = {} } = body;
 
@@ -45,6 +53,58 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : "Internal Server Error",
+      },
+      { status: 500 },
+    );
+  }
+}
+
+// 파일 업로드 처리 함수
+async function handleFileUpload(request: NextRequest) {
+  try {
+    const formData = await request.formData();
+    const url = formData.get("url") as string;
+
+    if (!url) {
+      return NextResponse.json({ error: "URL is required" }, { status: 400 });
+    }
+
+    // URL 제거 (실제 API로 전달할 FormData에서 제거)
+    formData.delete("url");
+
+    // 실제 API URL 구성
+    const apiUrl = url.startsWith("http")
+      ? url
+      : `${process.env.API_URL || process.env.NEXT_PUBLIC_API_URL}${url}`;
+
+    console.log(`[API Proxy - Upload] POST ${apiUrl}`);
+
+    // 헤더에서 Authorization 가져오기
+    const authHeader = request.headers.get("authorization");
+    const uploadHeaders: Record<string, string> = {};
+    if (authHeader) {
+      uploadHeaders["Authorization"] = authHeader;
+    }
+
+    // 프록시 요청 실행 (FormData 그대로 전달)
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: uploadHeaders,
+      body: formData,
+    });
+
+    // 응답 데이터 파싱
+    const responseData = await response.json();
+
+    // 상태 코드와 함께 응답 반환
+    return NextResponse.json(responseData, {
+      status: response.status,
+    });
+  } catch (error) {
+    console.error("[API Proxy - Upload Error]", error);
+    return NextResponse.json(
+      {
+        error: error instanceof Error ? error.message : "Upload Failed",
       },
       { status: 500 },
     );
