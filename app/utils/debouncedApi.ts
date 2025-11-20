@@ -4,6 +4,7 @@ interface DebouncedApiOptions {
   delay?: number;
   baseUrl?: string;
   defaultHeaders?: Record<string, string>;
+  useProxy?: boolean; // 프록시 사용 여부
 }
 
 interface ApiRequest {
@@ -18,6 +19,7 @@ export const useDebouncedApi = (options: DebouncedApiOptions = {}) => {
     delay = 500,
     baseUrl = process.env.NEXT_PUBLIC_API_URL || "",
     defaultHeaders = { "Content-Type": "application/json" },
+    useProxy = true, // 기본적으로 프록시 사용
   } = options;
 
   const timeouts = useRef<Map<string, NodeJS.Timeout>>(new Map());
@@ -37,12 +39,35 @@ export const useDebouncedApi = (options: DebouncedApiOptions = {}) => {
       abortControllers.current.set(id, abortController);
 
       try {
-        const response = await fetch(`${baseUrl}${request.url}`, {
-          method: request.method,
-          headers: { ...defaultHeaders, ...request.headers },
-          body: request.data ? JSON.stringify(request.data) : undefined,
-          signal: abortController.signal,
-        });
+        let fetchUrl: string;
+        let fetchOptions: RequestInit;
+
+        if (useProxy) {
+          // 프록시를 통한 요청
+          fetchUrl = "/api/proxy";
+          fetchOptions = {
+            method: "POST", // 프록시는 항상 POST
+            headers: { ...defaultHeaders },
+            body: JSON.stringify({
+              url: `${baseUrl}${request.url}`,
+              method: request.method,
+              data: request.data,
+              headers: request.headers,
+            }),
+            signal: abortController.signal,
+          };
+        } else {
+          // 직접 요청
+          fetchUrl = `${baseUrl}${request.url}`;
+          fetchOptions = {
+            method: request.method,
+            headers: { ...defaultHeaders, ...request.headers },
+            body: request.data ? JSON.stringify(request.data) : undefined,
+            signal: abortController.signal,
+          };
+        }
+
+        const response = await fetch(fetchUrl, fetchOptions);
 
         if (!response.ok) {
           // 에러 응답 파싱
@@ -78,7 +103,7 @@ export const useDebouncedApi = (options: DebouncedApiOptions = {}) => {
         abortControllers.current.delete(id);
       }
     },
-    [baseUrl, defaultHeaders],
+    [baseUrl, defaultHeaders, useProxy],
   );
 
   const debouncedRequest = useCallback(

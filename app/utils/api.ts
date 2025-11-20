@@ -14,6 +14,7 @@ interface RequestOptions extends Omit<RequestInit, "body"> {
 
 class ApiClient {
   private baseURL: string;
+  private useProxy: boolean;
   private isRefreshing = false;
   private refreshPromise: Promise<{
     success: boolean;
@@ -22,8 +23,10 @@ class ApiClient {
 
   constructor() {
     this.baseURL = process.env.NEXT_PUBLIC_API_URL || "";
+    this.useProxy = true; // 기본적으로 프록시 사용
     console.log("NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
     console.log("Current baseURL:", this.baseURL);
+    console.log("Using Proxy:", this.useProxy);
     if (!this.baseURL) {
       console.warn("NEXT_PUBLIC_API_URL이 설정되지 않았습니다.");
     }
@@ -64,13 +67,31 @@ class ApiClient {
       }
 
       console.log("🔄 토큰 갱신 시도");
-      const response = await fetch(`${this.baseURL}/api/v1/auth/refresh`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refreshToken }),
-      });
+      
+      let response: Response;
+      if (this.useProxy) {
+        // 프록시를 통한 요청
+        response = await fetch("/api/proxy", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            url: `${this.baseURL}/api/v1/auth/refresh`,
+            method: "POST",
+            data: { refreshToken },
+          }),
+        });
+      } else {
+        // 직접 요청
+        response = await fetch(`${this.baseURL}/api/v1/auth/refresh`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ refreshToken }),
+        });
+      }
 
       // 401, 403: 리프레시 토큰 만료 또는 무효 -> 로그아웃 필요
       if (response.status === 401 || response.status === 403) {
@@ -179,7 +200,26 @@ class ApiClient {
     };
 
     try {
-      const response = await fetch(url, requestOptions);
+      let response: Response;
+      
+      if (this.useProxy) {
+        // 프록시를 통한 요청
+        response = await fetch("/api/proxy", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            url: url,
+            method: requestOptions.method || "GET",
+            data: body,
+            headers: requestHeaders,
+          }),
+        });
+      } else {
+        // 직접 요청
+        response = await fetch(url, requestOptions);
+      }
 
       // 401 에러 처리 (토큰 만료)
       if (response.status === 401 && requireAuth) {
@@ -192,11 +232,30 @@ class ApiClient {
           const newAccessToken = tokenManager.getAccessToken();
           if (newAccessToken) {
             requestHeaders.Authorization = `Bearer ${newAccessToken}`;
-            const retryResponse = await fetch(url, {
-              ...requestOptions,
-              headers: requestHeaders as HeadersInit,
-              credentials: "include", // 쿠키 자동 전송
-            });
+            
+            let retryResponse: Response;
+            if (this.useProxy) {
+              // 프록시를 통한 재시도
+              retryResponse = await fetch("/api/proxy", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  url: url,
+                  method: requestOptions.method || "GET",
+                  data: body,
+                  headers: requestHeaders,
+                }),
+              });
+            } else {
+              // 직접 재시도
+              retryResponse = await fetch(url, {
+                ...requestOptions,
+                headers: requestHeaders as HeadersInit,
+                credentials: "include",
+              });
+            }
 
             return this.parseResponse<T>(retryResponse);
           }
