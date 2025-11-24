@@ -145,7 +145,7 @@ export default function ParentUpdatePage() {
     setIsSaving(true);
 
     try {
-      let finalImageKey = imageKey;
+      let finalImageKey = null;
 
       // 새로운 이미지가 선택되었으면 업로드
       if (selectedFile) {
