@@ -102,7 +102,7 @@ export default function DateWheelPicker({
     if (!ref.current) return;
 
     const scrollTop = ref.current.scrollTop;
-    let index = Math.round(scrollTop / ITEM_HEIGHT);
+    const index = Math.round(scrollTop / ITEM_HEIGHT);
 
     if (isCircular) {
       // 순환 배열의 경우 중간 섹션의 인덱스로 변환

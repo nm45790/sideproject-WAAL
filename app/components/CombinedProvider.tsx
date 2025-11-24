@@ -19,6 +19,7 @@ interface UserInfo {
   memberId: string;
   email: string;
   name: string;
+  memberPhone: string;
   role: string;
   academyId: number | null;
   academyAdmin: boolean;

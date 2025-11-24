@@ -71,7 +71,7 @@ export default function ParentSettingPage() {
             </div>
             <div>
               <p className="font-semibold text-[#6e7783] text-[14px] leading-[normal]">
-                {userInfo?.email || "-"}
+                {userInfo?.memberPhone || "-"}
               </p>
             </div>
           </div>
