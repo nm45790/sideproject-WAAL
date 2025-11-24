@@ -69,20 +69,6 @@ export default function Academy() {
     setSelectedDate(date);
   };
 
-  // 이전 날짜로 이동
-  const handlePrevDay = () => {
-    const prevDay = new Date(selectedDate);
-    prevDay.setDate(prevDay.getDate() - 1);
-    setSelectedDate(prevDay);
-  };
-
-  // 다음 날짜로 이동
-  const handleNextDay = () => {
-    const nextDay = new Date(selectedDate);
-    nextDay.setDate(nextDay.getDate() + 1);
-    setSelectedDate(nextDay);
-  };
-
   // 오늘 날짜인지 확인
   const isToday = (date: Date) => {
     const today = new Date();
@@ -165,23 +151,7 @@ export default function Academy() {
 
               {/* 중앙 컨텐츠 영역 */}
               <div className="flex items-center justify-between">
-                {/* 이전 날짜 버튼 */}
-                <button
-                  onClick={handlePrevDay}
-                  className="hover:opacity-70 transition-opacity flex-shrink-0"
-                >
-                  <svg width="6" height="13" viewBox="0 0 6 13" fill="none">
-                    <path
-                      d="M5 1L1 6.5L5 12"
-                      stroke="#858585"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </button>
-
-                {/* 중앙 숫자 및 텍스트 */}
+                {/* 중앙 숫자 및 텍스트 (클릭 가능) */}
                 <Link
                   href={statusUrl}
                   className="flex-1 flex flex-col items-center hover:opacity-80 transition-opacity cursor-pointer"
@@ -192,32 +162,32 @@ export default function Academy() {
                   <p className="font-bold text-[#363e4a] text-[20px] leading-[normal] mb-[8px]">
                     마리
                   </p>
-                  <div className="bg-[#f9f0fb] rounded-[7px] px-[10px] py-[5px]">
-                    <p className="font-bold text-[#a052ff] text-[12px] leading-[normal]">
-                      오늘
-                    </p>
+                  <div
+                    className={`rounded-[7px] px-[10px] py-[5px] flex items-center justify-center ${
+                      isToday(selectedDate) ? "bg-[#f9f0fb]" : "bg-transparent"
+                    }`}
+                    style={{ minHeight: 28 }}
+                  >
+                    {isToday(selectedDate) && (
+                      <p className="font-bold text-[#a052ff] text-[12px] leading-[normal]">
+                        오늘
+                      </p>
+                    )}
                   </div>
                 </Link>
 
-                {/* 다음 날짜 버튼 - 오늘이 아닐 때만 표시 */}
-                {!isToday(selectedDate) ? (
-                  <button
-                    onClick={handleNextDay}
-                    className="hover:opacity-70 transition-opacity flex-shrink-0"
-                  >
-                    <svg width="6" height="13" viewBox="0 0 6 13" fill="none">
-                      <path
-                        d="M1 1L5 6.5L1 12"
-                        stroke="#858585"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </button>
-                ) : (
-                  <div className="w-[6px] flex-shrink-0" />
-                )}
+                {/* 우측 화살표 아이콘 (클릭 유도용 UI, 비활성) */}
+                <div className="flex-shrink-0 opacity-40">
+                  <svg width="6" height="13" viewBox="0 0 6 13" fill="none">
+                    <path
+                      d="M1 1L5 6.5L1 12"
+                      stroke="#858585"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
               </div>
             </div>
 
