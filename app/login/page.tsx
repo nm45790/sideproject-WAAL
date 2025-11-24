@@ -181,13 +181,6 @@ export default function LoginPage() {
 
       {/* 입력 필드 영역 */}
       <div className="flex-1 flex flex-col">
-        {/* 에러 메시지 */}
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600 text-sm font-medium">{error}</p>
-          </div>
-        )}
-
         {/* 첫 번째 입력 필드 */}
         <div className="mb-[16px]">
           <input
