@@ -23,8 +23,10 @@ class ApiClient {
 
   constructor() {
     this.baseURL = process.env.NEXT_PUBLIC_API_URL || "";
-    this.useProxy = true; // 기본적으로 프록시 사용
+    // production 환경일 때만 프록시 사용
+    this.useProxy = process.env.NODE_ENV === "production";
     console.log("NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
+    console.log("NODE_ENV:", process.env.NODE_ENV);
     console.log("Current baseURL:", this.baseURL);
     console.log("Using Proxy:", this.useProxy);
     if (!this.baseURL) {
@@ -67,7 +69,7 @@ class ApiClient {
       }
 
       console.log("🔄 토큰 갱신 시도");
-      
+
       let response: Response;
       if (this.useProxy) {
         // 프록시를 통한 요청
@@ -201,7 +203,7 @@ class ApiClient {
 
     try {
       let response: Response;
-      
+
       if (this.useProxy) {
         // 프록시를 통한 요청
         response = await fetch("/api/proxy", {
@@ -232,7 +234,7 @@ class ApiClient {
           const newAccessToken = tokenManager.getAccessToken();
           if (newAccessToken) {
             requestHeaders.Authorization = `Bearer ${newAccessToken}`;
-            
+
             let retryResponse: Response;
             if (this.useProxy) {
               // 프록시를 통한 재시도

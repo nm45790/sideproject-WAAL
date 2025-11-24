@@ -20,27 +20,39 @@ export const uploadFile = async (file: File): Promise<string> => {
     const accessToken = tokenManager.getAccessToken();
     const baseURL = process.env.NEXT_PUBLIC_API_URL || "";
     const targetUrl = `${baseURL}/api/v1/s3/upload`;
+    const isProduction = process.env.NODE_ENV === "production";
 
-    console.log("🚀 파일 업로드 시작 (프록시 사용):", {
+    console.log("🚀 파일 업로드 시작:", {
       targetUrl,
       hasToken: !!accessToken,
       fileName: file.name,
       fileSize: file.size,
+      useProxy: isProduction,
     });
-
-    // 프록시를 통한 업로드
-    formData.append("url", targetUrl);
 
     const headers: Record<string, string> = {};
     if (accessToken) {
       headers["Authorization"] = `Bearer ${accessToken}`;
     }
 
-    const response = await fetch("/api/proxy", {
-      method: "POST",
-      headers,
-      body: formData,
-    });
+    let response: Response;
+
+    if (isProduction) {
+      // production: 프록시를 통한 업로드
+      formData.append("url", targetUrl);
+      response = await fetch("/api/proxy", {
+        method: "POST",
+        headers,
+        body: formData,
+      });
+    } else {
+      // development: 직접 업로드
+      response = await fetch(targetUrl, {
+        method: "POST",
+        headers,
+        body: formData,
+      });
+    }
 
     console.log("📡 업로드 응답:", {
       status: response.status,

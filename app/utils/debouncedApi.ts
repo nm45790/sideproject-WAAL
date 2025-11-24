@@ -19,7 +19,8 @@ export const useDebouncedApi = (options: DebouncedApiOptions = {}) => {
     delay = 500,
     baseUrl = process.env.NEXT_PUBLIC_API_URL || "",
     defaultHeaders = { "Content-Type": "application/json" },
-    useProxy = true, // 기본적으로 프록시 사용
+    // production 환경일 때만 프록시 사용
+    useProxy = process.env.NODE_ENV === "production",
   } = options;
 
   const timeouts = useRef<Map<string, NodeJS.Timeout>>(new Map());
