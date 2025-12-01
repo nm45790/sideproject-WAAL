@@ -41,6 +41,7 @@ export interface SignupData {
   petStartDate: string;
   petEndDate: string;
   petImageKey: string;
+  petImageUrl: string;
   regionCode: string;
   // Onboarding status
   isAcademyOnboardingCompleted: boolean;
@@ -83,6 +84,7 @@ interface SignupStore {
   updatePetStartDate: (petStartDate: string) => void;
   updatePetEndDate: (petEndDate: string) => void;
   updatePetImageKey: (petImageKey: string) => void;
+  updatePetImageUrl: (petImageUrl: string) => void;
   updateRegionCode: (regionCode: string) => void;
   updateParentOnboardingCompleted: (completed: boolean) => void;
 
@@ -92,7 +94,7 @@ interface SignupStore {
   isDetailsDataComplete: () => boolean;
   isAcademyOnboardingCompleted: () => boolean;
   isParentOnboardingCompleted: () => boolean;
-  
+
   // Pet adding mode
   setIsAddingPet: (isAdding: boolean) => void;
   resetPetData: () => void;
@@ -129,6 +131,7 @@ const initialSignupData: SignupData = {
   petStartDate: "",
   petEndDate: "",
   petImageKey: "",
+  petImageUrl: "",
   regionCode: "ALL",
   isAcademyOnboardingCompleted: false,
   isParentOnboardingCompleted: false,
@@ -349,6 +352,14 @@ export const useSignupStore = create<SignupStore>()((set, get) => ({
       },
     })),
 
+  updatePetImageUrl: (petImageUrl) =>
+    set((state) => ({
+      signupData: {
+        ...state.signupData,
+        petImageUrl,
+      },
+    })),
+
   updateRegionCode: (regionCode) =>
     set((state) => ({
       signupData: {
@@ -431,6 +442,7 @@ export const useSignupStore = create<SignupStore>()((set, get) => ({
         petStartDate: "",
         petEndDate: "",
         petImageKey: "",
+        petImageUrl: "",
         regionCode: "ALL",
       },
     })),

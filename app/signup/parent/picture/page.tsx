@@ -5,12 +5,16 @@ import { useRouter } from "next/navigation";
 import MainContainer from "../../../components/MainContainer";
 import Icons from "../../../components/Icons";
 import { useSignupStore } from "../../../store/signupStore";
-import { uploadFile } from "../../../utils/upload";
+import { tokenManager } from "../../../utils/cookies";
 
 export default function ParentPicturePage() {
   const router = useRouter();
-  const { signupData, updatePetImageKey, isParentOnboardingCompleted } =
-    useSignupStore();
+  const {
+    signupData,
+    updatePetImageKey,
+    updatePetImageUrl,
+    isParentOnboardingCompleted,
+  } = useSignupStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -31,6 +35,13 @@ export default function ParentPicturePage() {
     }
   }, [router, isParentOnboardingCompleted, signupData.isAddingPet]);
 
+  // 저장된 이미지 URL이 있으면 미리보기 표시
+  useEffect(() => {
+    if (signupData.petImageUrl) {
+      setPreviewUrl(signupData.petImageUrl);
+    }
+  }, [signupData.petImageUrl]);
+
   const handleGoBack = () => {
     router.back();
   };
@@ -39,9 +50,16 @@ export default function ParentPicturePage() {
     const file = event.target.files?.[0];
     if (file) {
       setSelectedFile(file);
+      // 기존 미리보기 URL 정리 (blob URL인 경우)
+      if (previewUrl && previewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrl);
+      }
       // 미리보기 URL 생성
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
+      // 새로운 파일을 선택하면 저장된 이미지 키와 URL 초기화
+      updatePetImageKey("");
+      updatePetImageUrl("");
     }
   };
 
@@ -52,9 +70,15 @@ export default function ParentPicturePage() {
   const handleRemoveImage = () => {
     setSelectedFile(null);
     if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
+      // Object URL인 경우에만 revoke (새로 선택한 파일의 경우)
+      if (previewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrl);
+      }
       setPreviewUrl(null);
     }
+    // 저장된 이미지 키와 URL 초기화
+    updatePetImageKey("");
+    updatePetImageUrl("");
     // 파일 입력 초기화
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -62,7 +86,8 @@ export default function ParentPicturePage() {
   };
 
   const handleNext = async () => {
-    if (!selectedFile) {
+    // 새로운 파일이 선택되지 않았고, 저장된 이미지 URL도 없으면 에러
+    if (!selectedFile && !signupData.petImageUrl) {
       alert("사진을 선택해주세요.");
       return;
     }
@@ -70,20 +95,71 @@ export default function ParentPicturePage() {
     setIsUploading(true);
 
     try {
-      // 1. 이미지 업로드
-      const s3Key = await uploadFile(selectedFile);
-      updatePetImageKey(s3Key);
-      console.log("Upload successful, s3Key:", s3Key);
+      let finalImageKey = signupData.petImageKey;
+      let finalImageUrl = signupData.petImageUrl;
+
+      // 새로운 파일이 선택된 경우에만 업로드
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        const accessToken = tokenManager.getAccessToken();
+        const baseURL = process.env.NEXT_PUBLIC_API_URL || "";
+        const targetUrl = `${baseURL}/api/v1/s3/upload`;
+        const isProduction = process.env.NODE_ENV === "production";
+
+        const headers: Record<string, string> = {};
+        if (accessToken) {
+          headers["Authorization"] = `Bearer ${accessToken}`;
+        }
+
+        let response: Response;
+
+        if (isProduction) {
+          formData.append("url", targetUrl);
+          response = await fetch("/api/proxy", {
+            method: "POST",
+            headers,
+            body: formData,
+          });
+        } else {
+          response = await fetch(targetUrl, {
+            method: "POST",
+            headers,
+            body: formData,
+          });
+        }
+
+        if (!response.ok) {
+          throw new Error(`Upload failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.code !== 200) {
+          throw new Error(`Upload failed with code: ${data.code}`);
+        }
+
+        finalImageKey = data.data.s3Key;
+        finalImageUrl = data.data.presignedUrl;
+
+        updatePetImageKey(finalImageKey);
+        updatePetImageUrl(finalImageUrl);
+
+        console.log("Upload successful, s3Key:", finalImageKey);
+        console.log("Upload successful, presignedUrl:", finalImageUrl);
+      }
 
       console.log("반려동물 등록 데이터:", {
         name: signupData.petName,
         breed: signupData.petBreed,
         birthday: signupData.petBirthday,
         gender: signupData.petGender,
-        imageKey: s3Key,
+        imageKey: finalImageKey,
+        imageUrl: finalImageUrl,
       });
 
-      // 3. 성공 시 완료 페이지로 이동
+      // 성공 시 다음 페이지로 이동
       router.push("/signup/parent/academy");
     } catch (error) {
       console.error("등록 실패:", error);
@@ -93,7 +169,7 @@ export default function ParentPicturePage() {
     }
   };
 
-  const isFormValid = selectedFile !== null;
+  const isFormValid = selectedFile !== null || signupData.petImageUrl !== "";
 
   return (
     <MainContainer>
