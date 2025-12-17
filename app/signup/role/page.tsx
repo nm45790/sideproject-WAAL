@@ -19,16 +19,16 @@ export default function RolePage() {
   const userInfo = authService.getCurrentUserInfo();
 
   // 필수 약관 동의 체크
-  useEffect(() => {
-    // 접근권한 체크(TEMP인 경우만 접근 가능)
-    if (!userInfo) {
-      alert("잘못된 접근입니다.");
-      router.push("/");
-    } else if (userInfo.role !== "TEMP") {
-      alert("잘못된 접근입니다.");
-      router.push("/");
-    }
-  }, [router, signupData.termsSelectOption, userInfo]);
+  // useEffect(() => {
+  //   // 접근권한 체크(TEMP인 경우만 접근 가능)
+  //   if (!userInfo) {
+  //     alert("잘못된 접근입니다.");
+  //     router.push("/");
+  //   } else if (userInfo.role !== "TEMP") {
+  //     alert("잘못된 접근입니다.");
+  //     router.push("/");
+  //   }
+  // }, [router, signupData.termsSelectOption, userInfo]);
 
   const handleGoBack = () => {
     router.back();
