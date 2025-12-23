@@ -117,18 +117,18 @@ export default function ParentPage() {
       {/* 상단 헤더 */}
       <div className="bg-[#f3f4f9] min-h-[144px] relative px-[20px] mb-[20px] pb-[20px]">
         <div className="pt-[73px]">
-          <p className="text-[20px] font-bold text-gray-900 leading-[24px]">
+          <p className="font-bold text-gray-900 text-[20px] leading-[24px]">
             안녕하세요!
           </p>
-          <div className="flex items-start gap-[4px] mt-[5px] flex-wrap">
+          <div className="flex items-center gap-[4px] mt-[5px]">
             <div className="bg-[#3f59ff] rounded-[7px] px-[8px] py-[5px]">
-              <p className="text-[20px] font-bold text-white leading-[24px]">
+              <p className="font-bold text-white text-[20px] leading-[24px]">
                 {pets.length > 0
                   ? pets.map((pet) => pet.petName).join(", ")
                   : userName}
               </p>
             </div>
-            <p className="text-[20px] font-bold text-gray-900 leading-[24px]">
+            <p className="font-bold text-gray-900 text-[20px] leading-[24px]">
               보호자님! 👋
             </p>
           </div>

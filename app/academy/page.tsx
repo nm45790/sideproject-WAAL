@@ -93,8 +93,6 @@ export default function Academy() {
     return `/academy/status?date=${dateStr}`;
   }, [selectedDate]);
 
-  console.log(userInfo);
-
   return (
     <>
       {/* 메인 콘텐츠 */}
