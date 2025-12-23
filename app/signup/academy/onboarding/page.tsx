@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { authService } from "../../../utils/auth";
 import { useSignupStore } from "../../../store/signupStore";
 import Icons from "@/app/components/Icons";
+import Image from "next/image";
 
 interface OnboardingSlide {
   id: number;
@@ -16,27 +17,9 @@ interface OnboardingSlide {
 const onboardingSlides: OnboardingSlide[] = [
   {
     id: 1,
-    title: "휴대폰 하나로\n우리 아이들을 모두 관리!",
-    description: "등원부터 상황 관리까지 간편하게 처리할 수 있어요!",
-    image: "/images/onboarding-1.png",
-  },
-  {
-    id: 2,
-    title: "간편한 등원/하원 관리",
-    description: "학부모와의 소통을 통해\n반려견의 일상을 안전하게 관리하세요",
-    image: "/images/onboarding-2.png",
-  },
-  {
-    id: 3,
-    title: "체계적인 일정 관리",
-    description: "수업, 급식, 산책 등\n모든 일정을 한눈에 확인하세요",
-    image: "/images/onboarding-3.png",
-  },
-  {
-    id: 4,
-    title: "학부모와의 소통",
-    description: "실시간 알림과 사진 공유로\n학부모와의 신뢰를 쌓아가세요",
-    image: "/images/onboarding-4.png",
+    title: "간편한 관리하세요!",
+    description: "유치원·호텔·놀이방 운영, 휴대폰 하나로 간편하게",
+    image: "/images/유치원 온보딩(1-1)_img.png",
   },
 ];
 
@@ -137,6 +120,7 @@ export default function AcademyOnboardingPage() {
 
   const isLastSlide = currentSlide === onboardingSlides.length - 1;
 
+  // TODO: 레이아웃 수정 필요
   return (
     <div className="bg-white w-full h-screen overflow-hidden flex flex-col">
       {/* 헤더 영역 */}
@@ -184,10 +168,12 @@ export default function AcademyOnboardingPage() {
             <div className="flex-1 flex items-center justify-center px-5">
               <div className="w-full max-w-[300px] h-[300px] flex items-center justify-center">
                 <div className="w-full h-full bg-gray-100 rounded-[20px] flex items-center justify-center">
-                  {/* TODO: 실제 이미지가 있으면 여기에 표시 */}
-                  <div className="text-[#858585] text-[16px] text-center">
-                    {slide.image}
-                  </div>
+                  <Image
+                    src={slide.image}
+                    alt={slide.title}
+                    width={335}
+                    height={309}
+                  />
                 </div>
               </div>
             </div>

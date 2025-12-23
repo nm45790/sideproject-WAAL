@@ -39,7 +39,7 @@ export default function BreedSelectorModal({
       {/* 헤더 영역 */}
       <div className="bg-white">
         {/* 닫기 버튼 */}
-        <div className="pt-[73px] px-5">
+        <div className="pt-[45px] px-5">
           <button
             onClick={onClose}
             className="p-[18px] w-[57px] h-[57px] flex items-center justify-center -ml-[18px]"

@@ -47,7 +47,7 @@ export default function RolePage() {
       authService.updateUserInfo({ role });
 
       if (role === "PARENT") {
-        router.push("/signup/parent");
+        router.push("/signup/parent/onboarding");
       } else {
         router.push("/signup/academy/onboarding");
       }

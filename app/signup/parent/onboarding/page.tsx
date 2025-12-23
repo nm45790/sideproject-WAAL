@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { authService } from "../../../utils/auth";
 import { useSignupStore } from "../../../store/signupStore";
 import Icons from "@/app/components/Icons";
+import Image from "next/image";
 
 interface OnboardingSlide {
   id: number;
@@ -18,13 +19,13 @@ const onboardingSlides: OnboardingSlide[] = [
     id: 1,
     title: "간편한 등원신청",
     description: "귀찮은 문의 없이, 쉽고 빠른 등원!",
-    image: "/images/parent/onboarding-1.png",
+    image: "/images/보호자 온보딩(2-1)_img.png",
   },
   {
     id: 1,
     title: "간편한 등원신청",
     description: "귀찮은 문의 없이, 쉽고 빠른 등원!",
-    image: "/images/parent/onboarding-2.png",
+    image: "/images/보호자 온보딩(2-2)_img.png",
   },
 ];
 
@@ -125,6 +126,7 @@ export default function AcademyOnboardingPage() {
 
   const isLastSlide = currentSlide === onboardingSlides.length - 1;
 
+  // TODO: 레이아웃 수정 필요
   return (
     <div className="bg-white w-full h-screen overflow-hidden flex flex-col">
       {/* 헤더 영역 */}
@@ -172,10 +174,12 @@ export default function AcademyOnboardingPage() {
             <div className="flex-1 flex items-center justify-center px-5">
               <div className="w-full max-w-[300px] h-[300px] flex items-center justify-center">
                 <div className="w-full h-full bg-gray-100 rounded-[20px] flex items-center justify-center">
-                  {/* TODO: 실제 이미지가 있으면 여기에 표시 */}
-                  <div className="text-[#858585] text-[16px] text-center">
-                    {slide.image}
-                  </div>
+                  <Image
+                    src={slide.image}
+                    alt={slide.title}
+                    width={335}
+                    height={309}
+                  />
                 </div>
               </div>
             </div>
