@@ -14,7 +14,13 @@
       "Bash(flutter pub get:*)",
       "Bash(open:*)",
       "Bash(flutter devices:*)",
-      "Bash(flutter run:*)"
+      "Bash(flutter run:*)",
+      "Bash(flutterfire configure:*)",
+      "Bash(~/.pub-cache/bin/flutterfire configure --project=waal-app --platforms=android,ios --yes)",
+      "Bash(sudo gem install:*)",
+      "Bash(flutter build:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }

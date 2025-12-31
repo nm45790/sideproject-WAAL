@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "581535374952",
+    "project_id": "waal-app",
+    "storage_bucket": "waal-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:581535374952:android:350b1a1a06f5c7c000e5dd",
+        "android_client_info": {
+          "package_name": "com.example.flutter_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCX0CLUESpi5uVEKaZ3mvBN1w6yKpQ2Oj4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
