@@ -6,7 +6,15 @@
       "Bash(pnpm install)",
       "Bash(pnpm dev)",
       "Bash(ls:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(yes:*)",
+      "Bash(flutter config:*)",
+      "Bash(sudo xcode-select:*)",
+      "Bash(pod install)",
+      "Bash(flutter pub get:*)",
+      "Bash(open:*)",
+      "Bash(flutter devices:*)",
+      "Bash(flutter run:*)"
     ]
   }
 }
