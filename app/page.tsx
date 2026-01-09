@@ -96,52 +96,52 @@ export default function Home() {
       {/* 메인 콘텐츠 */}
       <div className="w-full flex justify-center h-full">
         <MainContainer>
-          <div className="bg-white w-full min-h-dvh flex flex-col px-5">
+          <div className="bg-white w-full min-h-dvh flex flex-col px-4 sm:px-5">
             {/* 상단 여백 */}
-            <div className="h-[108px]" />
+            <div className="h-20 sm:h-[108px]" />
 
             {/* 타이틀 */}
-            <div className="font-bold leading-normal text-[#363e4a] text-[20px]">
+            <div className="font-bold leading-normal text-[#363e4a] text-lg sm:text-xl">
               <p className="mb-0">반려견 케어스페이스</p>
               <p>예약·관리 플랫폼</p>
             </div>
 
             {/* 서브타이틀 */}
-            <p className="font-medium leading-normal text-[#858585] text-[13px] mt-[38px]">
+            <p className="font-medium leading-normal text-[#858585] text-xs sm:text-sm mt-8 sm:mt-[38px]">
               유치원, 호텔, 놀이방 등 다양한 공간을 한 곳에서 간편하게
             </p>
 
             {/* 이미지 */}
-            <div className="mt-[72px] w-full flex justify-start">
-              <div className="h-[309px] rounded-[7px] w-[335px] relative overflow-hidden">
+            <div className="mt-12 sm:mt-[72px] w-full">
+              <div className="aspect-[335/309] sm:h-[309px] rounded-lg sm:rounded-[7px] w-full max-w-full relative overflow-hidden">
                 <Image
                   src="/images/로그인 및 회원가입_img.png"
                   alt="login_and_signup_img"
                   width={335}
                   height={309}
-                  className="h-[108.5%] w-full object-cover"
+                  className="h-full w-full object-cover"
                 />
               </div>
             </div>
 
             {/* 하단 버튼 영역 */}
-            <div className="mt-[91px] flex flex-col items-center">
+            <div className="mt-16 sm:mt-[91px] flex flex-col items-center w-full">
               {/* 로그인 버튼 */}
               <button
-                className="bg-[#3f55ff] h-[59px] rounded-[7px] w-[335px] flex items-center justify-center cursor-pointer hover:bg-[#3646e6] transition-colors"
+                className="bg-[#3f55ff] h-14 sm:h-[59px] rounded-lg sm:rounded-[7px] w-full max-w-[335px] flex items-center justify-center cursor-pointer hover:bg-[#3646e6] transition-colors"
                 onClick={() => router.push("/login")}
               >
-                <span className="font-semibold leading-normal text-[16px] text-center text-nowrap text-white">
+                <span className="font-semibold leading-normal text-sm sm:text-base text-center text-nowrap text-white">
                   왈 아이디로 로그인
                 </span>
               </button>
 
               {/* 회원가입 링크 */}
               <button
-                className="mt-[20px] border-[#363e4a] border-[0px_0px_1px] border-solid flex items-center justify-center cursor-pointer"
+                className="mt-5 sm:mt-[20px] border-[#363e4a] border-[0px_0px_1px] border-solid flex items-center justify-center cursor-pointer"
                 onClick={() => router.push("/signup/terms")}
               >
-                <span className="font-semibold leading-[16px] text-[#363e4a] text-[16px] text-center text-nowrap">
+                <span className="font-semibold leading-4 sm:leading-[16px] text-[#363e4a] text-sm sm:text-base text-center text-nowrap">
                   왈 아이디로 회원가입
                 </span>
               </button>
