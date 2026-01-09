@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // Firebase 관련 패키지
 import 'package:firebase_core/firebase_core.dart';
@@ -166,6 +167,87 @@ class _WebViewScreenState extends State<WebViewScreen> {
   // 웹앱 URL
   static const String webAppUrl = 'https://waal.vercel.app/';
 
+  // --------------------------------------------
+  // 전화 걸기 (네이티브 전화 앱 실행)
+  // --------------------------------------------
+  Future<void> _launchPhone(String url) async {
+    final uri = Uri.parse(url);
+    debugPrint('📞 전화 걸기: $url');
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      debugPrint('❌ 전화 앱을 실행할 수 없습니다: $url');
+    }
+  }
+
+  // --------------------------------------------
+  // 일반 URL 실행 (mailto: 등)
+  // --------------------------------------------
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    debugPrint('🔗 URL 실행: $url');
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      debugPrint('❌ URL을 실행할 수 없습니다: $url');
+    }
+  }
+
+  // --------------------------------------------
+  // tel:, mailto: 링크 가로채기 JavaScript 주입
+  // window.location.href = 'tel:...' 를 Flutter로 전달
+  // --------------------------------------------
+  void _injectTelInterceptor() {
+    const script = '''
+      (function() {
+        // 이미 주입되었는지 확인
+        if (window._flutterTelInterceptorInjected) return;
+        window._flutterTelInterceptorInjected = true;
+
+        // window.location.href setter 오버라이드
+        var originalLocationDescriptor = Object.getOwnPropertyDescriptor(window, 'location');
+
+        // location.href 변경 감지를 위한 프록시
+        var locationProxy = new Proxy(window.location, {
+          set: function(target, prop, value) {
+            if (prop === 'href') {
+              if (typeof value === 'string' && (value.startsWith('tel:') || value.startsWith('mailto:'))) {
+                // Flutter로 전달
+                if (window.FlutterBridge) {
+                  window.FlutterBridge.postMessage(value);
+                  return true;
+                }
+              }
+            }
+            target[prop] = value;
+            return true;
+          },
+          get: function(target, prop) {
+            var value = target[prop];
+            if (typeof value === 'function') {
+              return value.bind(target);
+            }
+            return value;
+          }
+        });
+
+        // 전역 함수로 tel 링크 처리
+        window.handleTelLink = function(phoneNumber) {
+          if (window.FlutterBridge) {
+            window.FlutterBridge.postMessage('tel:' + phoneNumber.replace(/-/g, ''));
+          }
+        };
+
+        console.log('📱 Flutter tel: interceptor injected');
+      })();
+    ''';
+
+    controller.runJavaScript(script);
+    debugPrint('📱 tel: 인터셉터 JavaScript 주입 완료');
+  }
+
   @override
   void initState() {
     super.initState();
@@ -176,9 +258,80 @@ class _WebViewScreenState extends State<WebViewScreen> {
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       // 배경색 설정
       ..setBackgroundColor(Colors.white)
+      // JavaScript Alert 다이얼로그 처리
+      ..setOnJavaScriptAlertDialog((request) async {
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: Text(request.message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('확인'),
+              ),
+            ],
+          ),
+        );
+      })
+      // JavaScript Confirm 다이얼로그 처리
+      ..setOnJavaScriptConfirmDialog((request) async {
+        final result = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: Text(request.message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('취소'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('확인'),
+              ),
+            ],
+          ),
+        );
+        return result ?? false;
+      })
+      // JavaScript Channel 등록 (웹 -> Flutter 통신)
+      ..addJavaScriptChannel(
+        'FlutterBridge',
+        onMessageReceived: (JavaScriptMessage message) {
+          final data = message.message;
+          debugPrint('📱 FlutterBridge 메시지 수신: $data');
+
+          // tel: 스킴 처리
+          if (data.startsWith('tel:')) {
+            _launchPhone(data);
+          }
+          // mailto: 스킴 처리
+          else if (data.startsWith('mailto:')) {
+            _launchUrl(data);
+          }
+        },
+      )
       // 네비게이션 이벤트 핸들러
       ..setNavigationDelegate(
         NavigationDelegate(
+          // 네비게이션 요청 처리 (tel:, mailto: 등 외부 URL 처리)
+          onNavigationRequest: (NavigationRequest request) {
+            final url = request.url;
+
+            // tel: 스킴 처리 (전화 걸기)
+            if (url.startsWith('tel:')) {
+              _launchPhone(url);
+              return NavigationDecision.prevent;
+            }
+
+            // mailto: 스킴 처리 (이메일 보내기)
+            if (url.startsWith('mailto:')) {
+              _launchUrl(url);
+              return NavigationDecision.prevent;
+            }
+
+            // 일반 URL은 WebView에서 처리
+            return NavigationDecision.navigate;
+          },
           // 페이지 로딩 시작
           onPageStarted: (String url) {
             setState(() {
@@ -191,11 +344,13 @@ class _WebViewScreenState extends State<WebViewScreen> {
               loadingProgress = progress / 100;
             });
           },
-          // 페이지 로딩 완료
+          // 페이지 로딩 완료 -> JavaScript 주입
           onPageFinished: (String url) {
             setState(() {
               isLoading = false;
             });
+            // tel:, mailto: 링크 가로채기 JavaScript 주입
+            _injectTelInterceptor();
           },
           // 에러 발생 시
           onWebResourceError: (WebResourceError error) {

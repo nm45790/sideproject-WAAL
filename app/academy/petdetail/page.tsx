@@ -86,7 +86,15 @@ const PetDetailPage = () => {
     if (petDetail?.ownerPhone) {
       // 전화번호에서 하이픈 제거
       const phoneNumber = petDetail.ownerPhone.replace(/-/g, "");
-      window.location.href = `tel:${phoneNumber}`;
+
+      // Flutter 앱에서 실행 중인지 확인 (FlutterBridge 존재 여부)
+      if (typeof window !== "undefined" && (window as any).FlutterBridge) {
+        // Flutter 네이티브 전화 기능 사용
+        (window as any).FlutterBridge.postMessage(`tel:${phoneNumber}`);
+      } else {
+        // 웹 브라우저에서는 기존 방식 사용
+        window.location.href = `tel:${phoneNumber}`;
+      }
     }
   };
 
