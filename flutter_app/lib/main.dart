@@ -10,14 +10,21 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
 
+// 스플래시 화면
+import 'screens/splash_screen.dart';
+
 // ============================================
 // 백그라운드 푸시 알림 핸들러
 // 앱이 백그라운드/종료 상태일 때 푸시 알림 수신 시 실행됨
 // ============================================
 @pragma('vm:entry-point') // 앱이 종료되어도 이 함수는 실행되도록 보장
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // 백그라운드에서도 Firebase 초기화 필요
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // 백그라운드에서도 Firebase 초기화 필요 (이미 초기화되어 있으면 스킵)
+  try {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  } catch (e) {
+    // 이미 초기화된 경우 무시
+  }
   print('📩 백그라운드 메시지 수신: ${message.notification?.title}');
 }
 
@@ -28,9 +35,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // --------------------------------------------
-  // Firebase 초기화
+  // Firebase 초기화 (이미 초기화되어 있으면 스킵)
   // --------------------------------------------
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  try {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  } catch (e) {
+    // 이미 초기화된 경우 무시
+    debugPrint('Firebase already initialized: $e');
+  }
 
   // --------------------------------------------
   // 백그라운드 메시지 핸들러 등록
@@ -50,9 +62,14 @@ void main() async {
 
   // --------------------------------------------
   // FCM 토큰 가져오기 (서버에 저장해서 푸시 보낼 때 사용)
+  // 시뮬레이터에서는 APNS 토큰이 없어서 에러 발생 가능
   // --------------------------------------------
-  String? token = await FirebaseMessaging.instance.getToken();
-  print('🔑 FCM 토큰: $token');
+  try {
+    String? token = await FirebaseMessaging.instance.getToken();
+    print('🔑 FCM 토큰: $token');
+  } catch (e) {
+    debugPrint('FCM 토큰 가져오기 실패 (시뮬레이터에서는 정상): $e');
+  }
 
   // 토큰 갱신 리스너 (토큰이 변경되면 서버에 업데이트 필요)
   FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
@@ -98,8 +115,16 @@ void main() async {
 // ============================================
 // 앱 루트 위젯
 // ============================================
-class WaalApp extends StatelessWidget {
+class WaalApp extends StatefulWidget {
   const WaalApp({super.key});
+
+  @override
+  State<WaalApp> createState() => _WaalAppState();
+}
+
+class _WaalAppState extends State<WaalApp> {
+  // 스플래시 완료 여부
+  bool _splashComplete = false;
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +132,15 @@ class WaalApp extends StatelessWidget {
       title: 'WAAL',
       debugShowCheckedModeBanner: false, // 디버그 배너 숨김
       theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
-      home: const WebViewScreen(),
+      home: _splashComplete
+          ? const WebViewScreen()
+          : SplashScreen(
+              onComplete: () {
+                setState(() {
+                  _splashComplete = true;
+                });
+              },
+            ),
     );
   }
 }
