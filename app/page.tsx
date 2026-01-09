@@ -112,8 +112,8 @@ export default function Home() {
             </p>
 
             {/* 이미지 */}
-            <div className="mt-[72px] w-full">
-              <div className="h-[309px] rounded-[7px] w-full relative overflow-hidden">
+            <div className="mt-[72px] w-full flex justify-start">
+              <div className="h-[309px] rounded-[7px] w-[335px] relative overflow-hidden">
                 <Image
                   src="/images/로그인 및 회원가입_img.png"
                   alt="login_and_signup_img"
