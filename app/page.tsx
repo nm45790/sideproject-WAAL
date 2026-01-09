@@ -1,55 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import MainContainer from "./components/MainContainer";
-import Splash from "./components/Splash";
 import { useRouter } from "next/navigation";
 import { authService } from "./utils/auth";
 import Image from "next/image";
 
 export default function Home() {
   const router = useRouter();
-
-  // 하이드레이션 에러 방지를 위해 초기값은 false
-  const [showSplash, setShowSplash] = useState(false);
-  const [splashFading, setSplashFading] = useState(false);
-  const [mainVisible, setMainVisible] = useState(false);
-
-  // 클라이언트 사이드에서 세션 스토리지 체크
-  useEffect(() => {
-    const hasShownSplash = sessionStorage.getItem("hasShownSplash");
-    if (!hasShownSplash) {
-      setShowSplash(true);
-    } else {
-      setMainVisible(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (showSplash) {
-      // 스플래시 표시 중 스크롤 방지
-      document.body.style.overflow = "hidden";
-
-      // 스플래시 fade out 타이머
-      const fadeOutTimer = setTimeout(() => {
-        setSplashFading(true);
-      }, 900);
-
-      // 메인 콘텐츠 표시 타이머
-      const mainTimer = setTimeout(() => {
-        setMainVisible(true);
-        setShowSplash(false);
-        document.body.style.overflow = ""; // 스크롤 복원
-        sessionStorage.setItem("hasShownSplash", "true"); // 세션에 저장
-      }, 1400); // fade out 완료 후
-
-      return () => {
-        clearTimeout(fadeOutTimer);
-        clearTimeout(mainTimer);
-        document.body.style.overflow = ""; // cleanup
-      };
-    }
-  }, [showSplash]);
 
   // 로그인 상태 체크
   useEffect(() => {
@@ -136,11 +94,7 @@ export default function Home() {
   return (
     <div className="w-full h-dvh overflow-hidden">
       {/* 메인 콘텐츠 */}
-      <div
-        className={`transition-all duration-700 ease-out ${
-          mainVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
-        } w-full flex justify-center h-full`}
-      >
+      <div className="w-full flex justify-center h-full">
         <MainContainer>
           <div className="bg-white w-full min-h-dvh flex flex-col px-5">
             {/* 상단 여백 */}
@@ -158,8 +112,8 @@ export default function Home() {
             </p>
 
             {/* 이미지 */}
-            <div className="mt-[72px] w-full flex justify-start">
-              <div className="h-[309px] rounded-[7px] w-[335px] relative overflow-hidden">
+            <div className="mt-[72px] w-full">
+              <div className="h-[309px] rounded-[7px] w-full relative overflow-hidden">
                 <Image
                   src="/images/로그인 및 회원가입_img.png"
                   alt="login_and_signup_img"
@@ -195,18 +149,6 @@ export default function Home() {
           </div>
         </MainContainer>
       </div>
-
-      {/* 스플래시 오버레이 */}
-      {showSplash && (
-        <div
-          className={`fixed inset-0 z-50 transition-opacity duration-500 ease-out ${
-            splashFading ? "opacity-0" : "opacity-100"
-          }`}
-          style={{ pointerEvents: splashFading ? "none" : "auto" }}
-        >
-          <Splash />
-        </div>
-      )}
     </div>
   );
 }
