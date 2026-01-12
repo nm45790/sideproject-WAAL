@@ -25,7 +25,9 @@
       "Bash(flutter emulators:*)",
       "Bash(pkill:*)",
       "Bash(flutter clean:*)",
-      "Bash(xcrun simctl uninstall:*)"
+      "Bash(xcrun simctl uninstall:*)",
+      "Bash(xcrun simctl list:*)",
+      "Bash(xcrun simctl boot:*)"
     ]
   }
 }
