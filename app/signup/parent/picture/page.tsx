@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import MainContainer from "../../../components/MainContainer";
 import Icons from "../../../components/Icons";
 import { useSignupStore } from "../../../store/signupStore";
-import { tokenManager } from "../../../utils/cookies";
+import { uploadFile } from "../../../utils/upload";
 
 export default function ParentPicturePage() {
   const router = useRouter();
@@ -37,10 +37,11 @@ export default function ParentPicturePage() {
 
   // 저장된 이미지 URL이 있으면 미리보기 표시
   useEffect(() => {
-    if (signupData.petImageUrl) {
+    // 새로운 파일이 선택되지 않았고, 저장된 이미지 URL이 있으면 사용
+    if (!selectedFile && signupData.petImageUrl) {
       setPreviewUrl(signupData.petImageUrl);
     }
-  }, [signupData.petImageUrl]);
+  }, [signupData.petImageUrl, selectedFile]);
 
   const handleGoBack = () => {
     router.back();
@@ -96,68 +97,20 @@ export default function ParentPicturePage() {
 
     try {
       let finalImageKey = signupData.petImageKey;
-      let finalImageUrl = signupData.petImageUrl;
 
       // 새로운 파일이 선택된 경우에만 업로드
       if (selectedFile) {
-        const formData = new FormData();
-        formData.append("file", selectedFile);
-
-        const accessToken = tokenManager.getAccessToken();
-        const baseURL = process.env.NEXT_PUBLIC_API_URL || "";
-        const targetUrl = `${baseURL}/api/v1/s3/upload`;
-        const isProduction = process.env.NODE_ENV === "production";
-
-        const headers: Record<string, string> = {};
-        if (accessToken) {
-          headers["Authorization"] = `Bearer ${accessToken}`;
-        }
-
-        let response: Response;
-
-        if (isProduction) {
-          formData.append("url", targetUrl);
-          response = await fetch("/api/proxy", {
-            method: "POST",
-            headers,
-            body: formData,
-          });
-        } else {
-          response = await fetch(targetUrl, {
-            method: "POST",
-            headers,
-            body: formData,
-          });
-        }
-
-        if (!response.ok) {
-          throw new Error(`Upload failed: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (data.code !== 200) {
-          throw new Error(`Upload failed with code: ${data.code}`);
-        }
-
-        finalImageKey = data.data.s3Key;
-        finalImageUrl = data.data.presignedUrl;
+        // uploadFile 유틸리티 사용 (압축 포함)
+        const uploadResult = await uploadFile(selectedFile);
+        finalImageKey = uploadResult.s3Key;
+        const finalImageUrl = uploadResult.presignedUrl;
 
         updatePetImageKey(finalImageKey);
         updatePetImageUrl(finalImageUrl);
 
-        console.log("Upload successful, s3Key:", finalImageKey);
-        console.log("Upload successful, presignedUrl:", finalImageUrl);
+        // 미리보기도 presignedUrl로 업데이트
+        setPreviewUrl(finalImageUrl);
       }
-
-      console.log("반려동물 등록 데이터:", {
-        name: signupData.petName,
-        breed: signupData.petBreed,
-        birthday: signupData.petBirthday,
-        gender: signupData.petGender,
-        imageKey: finalImageKey,
-        imageUrl: finalImageUrl,
-      });
 
       // 성공 시 다음 페이지로 이동
       router.push("/signup/parent/academy");

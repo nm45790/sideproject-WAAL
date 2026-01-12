@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { Pet } from "../types/pet";
 import Icons from "./Icons";
-import { getImageUrl } from "../utils/image";
 
 interface PetCardProps {
   pet: Pet;
@@ -41,7 +40,7 @@ function calculateTimeWithPet(birthday: string): string {
 export default function PetCard({ pet }: PetCardProps) {
   const router = useRouter();
   const timeWithPet = calculateTimeWithPet(pet.petBirthday);
-  const imageUrl = getImageUrl(pet.petImage);
+  const imageUrl = pet.petImage || null;
 
   const handleCardClick = () => {
     // 상태 페이지로 이동 (petId와 academyId 전달)

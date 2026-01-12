@@ -76,9 +76,8 @@ export default function AcademyPicturePage() {
 
     try {
       // 1. 이미지 업로드
-      const s3Key = await uploadFile(selectedFile);
-      updateImageKey(s3Key);
-      console.log("Upload successful, s3Key:", s3Key);
+      const uploadResult = await uploadFile(selectedFile);
+      updateImageKey(uploadResult.s3Key);
 
       // 2. 회원가입 API 호출
       const academySignupData = {

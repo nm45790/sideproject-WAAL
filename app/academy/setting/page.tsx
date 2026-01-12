@@ -126,8 +126,8 @@ export default function AcademySettingPage() {
 
       // 새 이미지 업로드
       if (selectedFile) {
-        academyImage = await uploadFile(selectedFile);
-        console.log("✅ 이미지 업로드 성공:", academyImage);
+        const uploadResult = await uploadFile(selectedFile);
+        academyImage = uploadResult.s3Key;
       }
 
       // PATCH 요청

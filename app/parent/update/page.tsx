@@ -8,7 +8,6 @@ import DateWheelPicker from "../../components/DateWheelPicker";
 import { useAuth } from "../../components/CombinedProvider";
 import { api } from "../../utils/api";
 import { uploadFile } from "../../utils/upload";
-import { getImageUrl } from "../../utils/image";
 
 export default function ParentUpdatePage() {
   const router = useRouter();
@@ -149,7 +148,8 @@ export default function ParentUpdatePage() {
 
       // 새로운 이미지가 선택되었으면 업로드
       if (selectedFile) {
-        finalImageKey = await uploadFile(selectedFile);
+        const uploadResult = await uploadFile(selectedFile);
+        finalImageKey = uploadResult.s3Key;
       }
 
       // API 호출
@@ -259,7 +259,7 @@ export default function ParentUpdatePage() {
               >
                 {previewUrl || imageKey ? (
                   <img
-                    src={previewUrl || getImageUrl(imageKey) || ""}
+                    src={previewUrl || imageKey || ""}
                     alt="반려견 사진"
                     className="w-full h-full object-cover"
                   />

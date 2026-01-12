@@ -8,7 +8,6 @@ import DatePickerModal from "../../components/DatePickerModal";
 import { useAuth } from "../../components/CombinedProvider";
 import { api } from "../../utils/api";
 import { formatApiDate, formatDate } from "../../utils/date";
-import { getImageUrl } from "../../utils/image";
 
 interface Reservation {
   id: number;
@@ -234,10 +233,9 @@ export default function ParentStatusPage() {
                 >
                   {/* 프로필 이미지 */}
                   <div className="w-[50px] h-[50px] rounded-full bg-[#e5e5e5] flex items-center justify-center flex-shrink-0 overflow-hidden">
-                    {reservation.petImage &&
-                    getImageUrl(reservation.petImage) ? (
+                    {reservation.petImage ? (
                       <img
-                        src={getImageUrl(reservation.petImage) || ""}
+                        src={reservation.petImage}
                         alt={reservation.petName}
                         className="w-full h-full object-cover"
                       />

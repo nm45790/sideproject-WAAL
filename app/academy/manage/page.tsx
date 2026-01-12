@@ -7,7 +7,6 @@ import Icons from "../../components/Icons";
 import { useAuth } from "../../components/CombinedProvider";
 import { api } from "../../utils/api";
 import { getChosung, isChosungSearch } from "../../utils/search";
-import { getImageUrl } from "../../utils/image";
 
 interface Enrollment {
   enrollmentId: number;
@@ -210,9 +209,9 @@ const AcademyManagePage = () => {
               >
                 {/* 강아지 이미지 */}
                 <div className="w-[50px] h-[50px] rounded-full bg-[#e5e5e5] flex items-center justify-center flex-shrink-0 overflow-hidden">
-                  {enrollment.petImage && getImageUrl(enrollment.petImage) ? (
+                  {enrollment.petImage ? (
                     <img
-                      src={getImageUrl(enrollment.petImage)!}
+                      src={enrollment.petImage}
                       alt={enrollment.petName}
                       className="w-full h-full object-cover"
                     />
