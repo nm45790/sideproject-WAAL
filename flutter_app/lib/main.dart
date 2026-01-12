@@ -14,6 +14,12 @@ import 'firebase_options.dart';
 // 스플래시 화면
 import 'screens/splash_screen.dart';
 
+// 로딩 인디케이터
+import 'widgets/loading_animation.dart';
+
+// 에러 화면
+import 'widgets/error_screen.dart';
+
 // ============================================
 // 백그라운드 푸시 알림 핸들러
 // 앱이 백그라운드/종료 상태일 때 푸시 알림 수신 시 실행됨
@@ -164,8 +170,13 @@ class _WebViewScreenState extends State<WebViewScreen> {
   bool isLoading = true;
   double loadingProgress = 0;
 
+  // 에러 상태 관리
+  bool hasError = false;
+  String? errorMessage;
+
   // 웹앱 URL
   static const String webAppUrl = 'https://waal.vercel.app/';
+  // static const String webAppUrl = 'https://asdfasdfnotexist.com/';
 
   // --------------------------------------------
   // 전화 걸기 (네이티브 전화 앱 실행)
@@ -342,6 +353,8 @@ class _WebViewScreenState extends State<WebViewScreen> {
           onPageStarted: (String url) {
             setState(() {
               isLoading = true;
+              hasError = false; // 에러 상태 초기화
+              errorMessage = null;
             });
           },
           // 로딩 진행률 업데이트
@@ -358,9 +371,16 @@ class _WebViewScreenState extends State<WebViewScreen> {
             // tel:, mailto: 링크 가로채기 JavaScript 주입
             _injectTelInterceptor();
           },
-          // 에러 발생 시
+          // 에러 발생 시 (메인 프레임 에러만 처리)
           onWebResourceError: (WebResourceError error) {
             debugPrint('WebView 에러: ${error.description}');
+            // 에러 발생 시 로딩 중단 + 에러 화면 표시
+            // (메인 프레임 여부와 관계없이 처리해서 "무한 로딩" 방지)
+            setState(() {
+              isLoading = false;
+              hasError = true;
+              errorMessage = error.description;
+            });
           },
         ),
       )
@@ -390,13 +410,24 @@ class _WebViewScreenState extends State<WebViewScreen> {
               // WebView 위젯
               WebViewWidget(controller: controller),
 
-              // 로딩 중일 때 프로그레스 바 표시
-              if (isLoading)
-                LinearProgressIndicator(
-                  value: loadingProgress,
-                  backgroundColor: Colors.grey[200],
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
-                ),
+              // 에러 발생 시 에러 화면 표시
+              if (hasError)
+                ErrorScreen(
+                  onRetry: () {
+                    setState(() {
+                      // 다시 시도 누르면 로딩 상태로 전환
+                      // isLoading = true
+                      hasError = false;
+                      errorMessage = null;
+                    });
+                    // 실패한 페이지를 새로 로드 (reload 대신 명시적으로 URL 로드)
+                    controller.loadRequest(Uri.parse(webAppUrl));
+                  },
+                  errorMessage: errorMessage,
+                )
+              // 로딩 중일 때 스피너 표시 (1초 이상 로딩 시에만)
+              else if (isLoading)
+                const LoadingIndicator(),
             ],
           ),
         ),

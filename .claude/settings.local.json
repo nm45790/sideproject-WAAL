@@ -27,7 +27,9 @@
       "Bash(flutter clean:*)",
       "Bash(xcrun simctl uninstall:*)",
       "Bash(xcrun simctl list:*)",
-      "Bash(xcrun simctl boot:*)"
+      "Bash(xcrun simctl boot:*)",
+      "Bash(nc:*)",
+      "Bash(find:*)"
     ]
   }
 }
