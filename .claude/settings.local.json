@@ -20,7 +20,16 @@
       "Bash(sudo gem install:*)",
       "Bash(flutter build:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(flutter emulators:*)",
+      "Bash(pkill:*)",
+      "Bash(flutter clean:*)",
+      "Bash(xcrun simctl uninstall:*)",
+      "Bash(xcrun simctl list:*)",
+      "Bash(xcrun simctl boot:*)",
+      "Bash(nc:*)",
+      "Bash(find:*)"
     ]
   }
 }
