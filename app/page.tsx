@@ -1,55 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import MainContainer from "./components/MainContainer";
-import Splash from "./components/Splash";
 import { useRouter } from "next/navigation";
 import { authService } from "./utils/auth";
 import Image from "next/image";
 
 export default function Home() {
   const router = useRouter();
-
-  // 하이드레이션 에러 방지를 위해 초기값은 false
-  const [showSplash, setShowSplash] = useState(false);
-  const [splashFading, setSplashFading] = useState(false);
-  const [mainVisible, setMainVisible] = useState(false);
-
-  // 클라이언트 사이드에서 세션 스토리지 체크
-  useEffect(() => {
-    const hasShownSplash = sessionStorage.getItem("hasShownSplash");
-    if (!hasShownSplash) {
-      setShowSplash(true);
-    } else {
-      setMainVisible(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (showSplash) {
-      // 스플래시 표시 중 스크롤 방지
-      document.body.style.overflow = "hidden";
-
-      // 스플래시 fade out 타이머
-      const fadeOutTimer = setTimeout(() => {
-        setSplashFading(true);
-      }, 900);
-
-      // 메인 콘텐츠 표시 타이머
-      const mainTimer = setTimeout(() => {
-        setMainVisible(true);
-        setShowSplash(false);
-        document.body.style.overflow = ""; // 스크롤 복원
-        sessionStorage.setItem("hasShownSplash", "true"); // 세션에 저장
-      }, 1400); // fade out 완료 후
-
-      return () => {
-        clearTimeout(fadeOutTimer);
-        clearTimeout(mainTimer);
-        document.body.style.overflow = ""; // cleanup
-      };
-    }
-  }, [showSplash]);
 
   // 로그인 상태 체크
   useEffect(() => {
@@ -134,47 +92,52 @@ export default function Home() {
   }, [router]);
 
   return (
-    <div className="w-full h-dvh overflow-hidden">
+    <div className="w-full min-h-screen">
       {/* 메인 콘텐츠 */}
-      <div
-        className={`transition-all duration-700 ease-out ${
-          mainVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
-        } w-full flex justify-center h-full`}
-      >
+      <div className="w-full flex justify-center min-h-screen">
         <MainContainer>
-          <div className="bg-white w-full min-h-dvh flex flex-col px-5">
-            {/* 상단 여백 */}
-            <div className="h-[108px]" />
+          <div className="bg-white w-full min-h-screen flex flex-col px-5">
+            {/* 상단 여백 - Figma 기준 108px, 작은 화면/가로 모드에서는 비율로 조정 */}
+            <div className="h-[10vh] min-h-[48px] max-h-[108px] sm:h-[108px]" />
 
-            {/* 타이틀 */}
+            {/* 타이틀 - Figma: text-[20px] */}
             <div className="font-bold leading-normal text-[#363e4a] text-[20px]">
               <p className="mb-0">반려견 케어스페이스</p>
               <p>예약·관리 플랫폼</p>
             </div>
 
-            {/* 서브타이틀 */}
-            <p className="font-medium leading-normal text-[#858585] text-[13px] mt-[38px]">
+            {/* 서브타이틀 - Figma 기준 58px 간격, 작은 화면에서는 비율로 조정 */}
+            <p
+              className="font-medium leading-normal text-[#858585] text-[13px] sm:mt-[58px]"
+              style={{ marginTop: "clamp(24px, 5vh, 58px)" }}
+            >
               유치원, 호텔, 놀이방 등 다양한 공간을 한 곳에서 간편하게
             </p>
 
-            {/* 이미지 */}
-            <div className="mt-[72px] w-full flex justify-start">
-              <div className="h-[309px] rounded-[7px] w-[335px] relative overflow-hidden">
+            {/* 이미지 - Figma 기준 85px 간격, 작은 화면에서는 비율로 조정 */}
+            <div
+              className="w-full flex-shrink-0 sm:mt-[85px]"
+              style={{ marginTop: "clamp(24px, 7vh, 85px)" }}
+            >
+              <div className="aspect-[335/309] rounded-[7px] w-full max-w-[335px] sm:max-w-full relative overflow-hidden">
                 <Image
                   src="/images/로그인 및 회원가입_img.png"
                   alt="login_and_signup_img"
                   width={335}
                   height={309}
-                  className="h-[108.5%] w-full object-cover"
+                  className="h-full w-full object-cover"
                 />
               </div>
             </div>
 
-            {/* 하단 버튼 영역 */}
-            <div className="mt-[91px] flex flex-col items-center">
-              {/* 로그인 버튼 */}
+            {/* 하단 버튼 영역 - Figma 기준 91px 간격, 작은 화면에서는 비율로 조정 */}
+            <div
+              className="mt-auto pb-8 flex flex-col items-center w-full flex-shrink-0 sm:pt-[91px]"
+              style={{ paddingTop: "clamp(32px, 8vh, 91px)" }}
+            >
+              {/* 로그인 버튼 - Figma: w-[335px], h-[59px] */}
               <button
-                className="bg-[#3f55ff] h-[59px] rounded-[7px] w-[335px] flex items-center justify-center cursor-pointer hover:bg-[#3646e6] transition-colors"
+                className="bg-[#3f55ff] h-[59px] rounded-[7px] w-full max-w-[335px] flex items-center justify-center cursor-pointer hover:bg-[#3646e6] transition-colors"
                 onClick={() => router.push("/login")}
               >
                 <span className="font-semibold leading-normal text-[16px] text-center text-nowrap text-white">
@@ -182,7 +145,7 @@ export default function Home() {
                 </span>
               </button>
 
-              {/* 회원가입 링크 */}
+              {/* 회원가입 링크 - Figma 기준 20px 간격 */}
               <button
                 className="mt-[20px] border-[#363e4a] border-[0px_0px_1px] border-solid flex items-center justify-center cursor-pointer"
                 onClick={() => router.push("/signup/terms")}
@@ -195,18 +158,6 @@ export default function Home() {
           </div>
         </MainContainer>
       </div>
-
-      {/* 스플래시 오버레이 */}
-      {showSplash && (
-        <div
-          className={`fixed inset-0 z-50 transition-opacity duration-500 ease-out ${
-            splashFading ? "opacity-0" : "opacity-100"
-          }`}
-          style={{ pointerEvents: splashFading ? "none" : "auto" }}
-        >
-          <Splash />
-        </div>
-      )}
     </div>
   );
 }

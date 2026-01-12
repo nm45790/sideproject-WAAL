@@ -54,8 +54,11 @@ export default function ParentPage() {
   const handleScroll = () => {
     if (scrollRef.current) {
       const scrollLeft = scrollRef.current.scrollLeft;
-      const cardWidth = 315 + 30; // 카드 너비 + 간격
-      const index = Math.round(scrollLeft / cardWidth);
+      // 반응형: 모바일에서는 카드 너비가 작을 수 있으므로 동적으로 계산
+      const cardElement = scrollRef.current.querySelector("[data-card]");
+      const cardWidth = cardElement ? cardElement.clientWidth : 315;
+      const gap = window.innerWidth >= 640 ? 30 : 24; // sm 브레이크포인트 기준
+      const index = Math.round(scrollLeft / (cardWidth + gap));
       setCurrentIndex(index);
     }
   };
@@ -115,20 +118,20 @@ export default function ParentPage() {
   return (
     <MainContainer bg="#f3f4f9" noPadding>
       {/* 상단 헤더 */}
-      <div className="bg-[#f3f4f9] min-h-[144px] relative px-[20px] mb-[20px] pb-[20px]">
-        <div className="pt-[73px]">
-          <p className="font-bold text-gray-900 text-[20px] leading-[24px]">
+      <div className="bg-[#f3f4f9] min-h-32 sm:min-h-[144px] relative px-4 sm:px-5 mb-4 sm:mb-5 pb-4 sm:pb-5">
+        <div className="pt-16 sm:pt-[73px]">
+          <p className="font-bold text-gray-900 text-lg sm:text-xl leading-6 sm:leading-[24px]">
             안녕하세요!
           </p>
-          <div className="flex items-center gap-[4px] mt-[5px]">
-            <div className="bg-[#3f59ff] rounded-[7px] px-[8px] py-[5px]">
-              <p className="font-bold text-white text-[20px] leading-[24px]">
+          <div className="flex items-center gap-1 sm:gap-[4px] mt-1 sm:mt-[5px]">
+            <div className="bg-[#3f59ff] rounded-lg sm:rounded-[7px] px-2 sm:px-[8px] py-1 sm:py-[5px]">
+              <p className="font-bold text-white text-lg sm:text-xl leading-6 sm:leading-[24px]">
                 {pets.length > 0
                   ? pets.map((pet) => pet.petName).join(", ")
                   : userName}
               </p>
             </div>
-            <p className="font-bold text-gray-900 text-[20px] leading-[24px]">
+            <p className="font-bold text-gray-900 text-lg sm:text-xl leading-6 sm:leading-[24px]">
               보호자님! 👋
             </p>
           </div>
@@ -137,7 +140,7 @@ export default function ParentPage() {
         {/* 설정 아이콘 */}
         <button
           onClick={handleSettings}
-          className="absolute right-[20px] top-[73px] w-[24px] h-[24px]"
+          className="absolute right-4 sm:right-5 top-16 sm:top-[73px] w-6 h-6 sm:w-[24px] sm:h-[24px]"
         >
           <svg
             width="24"
@@ -172,7 +175,7 @@ export default function ParentPage() {
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        className="flex gap-[30px] px-[30px] overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth cursor-grab"
+        className="flex gap-6 sm:gap-[30px] px-4 sm:px-[30px] overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth cursor-grab"
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
@@ -194,14 +197,14 @@ export default function ParentPage() {
       </div>
 
       {/* 하단 인디케이터 */}
-      <div className="flex items-center justify-center gap-[8px] mt-[30px] pb-[40px]">
+      <div className="flex items-center justify-center gap-2 sm:gap-[8px] mt-6 sm:mt-[30px] pb-8 sm:pb-[40px]">
         {Array.from({ length: totalCards }).map((_, index) => (
           <div
             key={index}
-            className={`h-[10px] rounded-full transition-all ${
+            className={`h-2.5 sm:h-[10px] rounded-full transition-all ${
               index === currentIndex
-                ? "w-[36px] bg-[#3f59ff]"
-                : "w-[10px] bg-[#d2d2d2]"
+                ? "w-8 sm:w-[36px] bg-[#3f59ff]"
+                : "w-2.5 sm:w-[10px] bg-[#d2d2d2]"
             }`}
           />
         ))}

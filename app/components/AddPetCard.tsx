@@ -18,7 +18,8 @@ export default function AddPetCard() {
   return (
     <button
       onClick={handleAddPet}
-      className="bg-white rounded-[7px] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1)] w-[315px] min-h-[458px] flex-shrink-0 snap-center flex flex-col items-center justify-center hover:bg-gray-50 transition-colors"
+      data-card
+      className="bg-white rounded-lg sm:rounded-[7px] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1)] w-[280px] sm:w-[315px] min-h-[400px] sm:min-h-[458px] flex-shrink-0 snap-center flex flex-col items-center justify-center hover:bg-gray-50 transition-colors"
     >
       {/* + 아이콘을 십자가 형태로 표시 */}
       <div className="relative w-[60px] h-[60px]">

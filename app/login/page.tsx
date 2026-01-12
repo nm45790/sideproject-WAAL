@@ -162,8 +162,8 @@ export default function LoginPage() {
       <PageHeader variant="close" />
 
       {/* 제목 영역 */}
-      <div className="pt-[62px] pb-[92px]">
-        <h1 className="text-[25px] font-bold text-gray-900 leading-[30px] text-center">
+      <div className="pt-12 sm:pt-[62px] pb-16 sm:pb-[92px]">
+        <h1 className="text-xl sm:text-[25px] font-bold text-gray-900 leading-7 sm:leading-[30px] text-center">
           로그인을 해주세요!
         </h1>
       </div>
@@ -179,7 +179,7 @@ export default function LoginPage() {
             onFocus={() => setIsIdFocused(true)}
             onBlur={() => setIsIdFocused(false)}
             placeholder="아이디를 입력해주세요"
-            className={`w-full h-[59px] border-[1.5px] rounded-[7px] px-5 text-[16px] font-medium outline-none transition-colors ${
+            className={`w-full h-12 sm:h-[59px] border-[1.5px] rounded-lg sm:rounded-[7px] px-4 sm:px-5 text-sm sm:text-base font-medium outline-none transition-colors ${
               isIdFocused || id ? "border-[#3f55ff]" : "border-[#d2d2d2]"
             } placeholder:text-[#d2d2d2] placeholder:font-medium`}
           />
@@ -194,7 +194,7 @@ export default function LoginPage() {
             onFocus={() => setIsPasswordFocused(true)}
             onBlur={() => setIsPasswordFocused(false)}
             placeholder="비밀번호를 입력해주세요"
-            className={`w-full h-[59px] border-[1.5px] rounded-[7px] px-5 text-[16px] font-medium outline-none transition-colors ${
+            className={`w-full h-12 sm:h-[59px] border-[1.5px] rounded-lg sm:rounded-[7px] px-4 sm:px-5 text-sm sm:text-base font-medium outline-none transition-colors ${
               isPasswordFocused || password
                 ? "border-[#3f55ff]"
                 : "border-[#d2d2d2]"
@@ -207,7 +207,7 @@ export default function LoginPage() {
           <button
             onClick={handleLogin}
             disabled={isLoading || !id.trim() || !password.trim()}
-            className={`w-full h-[59px] rounded-[7px] flex items-center justify-center transition-colors ${
+            className={`w-full h-12 sm:h-[59px] rounded-lg sm:rounded-[7px] flex items-center justify-center transition-colors ${
               isLoading || !id.trim() || !password.trim()
                 ? "bg-gray-300 cursor-not-allowed"
                 : "bg-[#3f55ff] hover:bg-[#3646e6] cursor-pointer"
@@ -216,12 +216,12 @@ export default function LoginPage() {
             {isLoading ? (
               <div className="flex items-center">
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                <span className="font-semibold text-white text-[16px]">
+                <span className="font-semibold text-white text-sm sm:text-base">
                   로그인 중...
                 </span>
               </div>
             ) : (
-              <span className="font-semibold text-white text-[16px]">
+              <span className="font-semibold text-white text-sm sm:text-base">
                 로그인
               </span>
             )}
@@ -229,9 +229,9 @@ export default function LoginPage() {
         </div>
 
         {/* 아이디, 비밀번호 찾기 영역 */}
-        <div className="flex justify-center items-center mt-6 gap-[6px] w-full">
+        <div className="flex justify-center items-center mt-6 gap-1.5 sm:gap-[6px] w-full">
           <button
-            className="text-[#B4B4B4] text-[13px]"
+            className="text-[#B4B4B4] text-xs sm:text-[13px]"
             onClick={() => router.push("/find/id")}
           >
             아이디 찾기
@@ -247,7 +247,7 @@ export default function LoginPage() {
           </svg>
 
           <button
-            className="text-[#B4B4B4] text-[13px]"
+            className="text-[#B4B4B4] text-xs sm:text-[13px]"
             onClick={() => router.push("/find/password")}
           >
             비밀번호 찾기
