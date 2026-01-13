@@ -175,7 +175,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
   String? errorMessage;
 
   // 웹앱 URL
-  static const String webAppUrl = 'https://waal.vercel.app/';
+  static const String webAppUrl = 'https://waal.kr/';
   // static const String webAppUrl = 'https://asdfasdfnotexist.com/';
 
   // --------------------------------------------
