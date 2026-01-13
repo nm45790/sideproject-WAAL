@@ -5,8 +5,9 @@ import CombinedProvider from "@/app/components/CombinedProvider";
 import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
-  title: "🐶 WAAL",
-  description: "WAAL",
+  title: "왈 - 반려견 케어스페이스",
+  description:
+    "반려견 유치원 예약부터 등원 알림, 유치원과의 소통까지 한 곳에서 관리하세요",
 };
 
 export const viewport: Viewport = {
