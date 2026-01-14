@@ -25,12 +25,19 @@ class ApiClient {
     this.baseURL = process.env.NEXT_PUBLIC_API_URL || "";
     // production 환경일 때만 프록시 사용
     this.useProxy = process.env.NODE_ENV === "production";
-    console.log("NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
-    console.log("NODE_ENV:", process.env.NODE_ENV);
-    console.log("Current baseURL:", this.baseURL);
-    console.log("Using Proxy:", this.useProxy);
+    
+    // 개발 환경에서만 로그 출력
+    if (process.env.NODE_ENV === "development") {
+      console.log("NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
+      console.log("NODE_ENV:", process.env.NODE_ENV);
+      console.log("Current baseURL:", this.baseURL);
+      console.log("Using Proxy:", this.useProxy);
+    }
+    
     if (!this.baseURL) {
-      console.warn("NEXT_PUBLIC_API_URL이 설정되지 않았습니다.");
+      if (process.env.NODE_ENV === "development") {
+        console.warn("NEXT_PUBLIC_API_URL이 설정되지 않았습니다.");
+      }
     }
   }
 
