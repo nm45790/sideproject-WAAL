@@ -1,5 +1,3 @@
-import { authService } from "../utils/auth";
-
 export const MainContainer = ({
   children,
   className,
